@@ -21,5 +21,8 @@
     <ClCompile Include="NYTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Ship.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

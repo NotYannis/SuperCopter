@@ -23,6 +23,13 @@ public:
 		QueryPerformanceCounter(&lastUpdateTime);
 	}
 
+	void restart()
+	{
+		LARGE_INTEGER timeNow;
+		QueryPerformanceCounter(&timeNow);
+		lastUpdateTime = timeNow;
+	}
+
 	float getElapsedSeconds(bool restart = false)
 	{
 		LARGE_INTEGER timeNow;
