@@ -1,17 +1,19 @@
-#ifndef __SHIP__
-#define __SHIP__
+#include "ship.h"
 
-class Ship{
-public:
-	const int xPos = 5;
-	int yPos;
-	int fallingSpeed;
-	const char shape = '>';
-
-	Ship(int y, int fall){
+	Ship::Ship(float y){
 		yPos = y;
-		fallingSpeed = fall;
 	}
-};
 
-#endif
+	void Ship::fall(){
+		if (GetAsyncKeyState(VK_UP)){
+			fallingVelocity -= 0.01f;
+		}
+		else
+			fallingVelocity += 0.01f;
+		
+		if (fallingVelocity < -maxFallingV)
+			fallingVelocity = -maxFallingV;
+		else if (fallingVelocity > maxFallingV)
+			fallingVelocity = maxFallingV;
+		yPos += fallingVelocity;
+	}
