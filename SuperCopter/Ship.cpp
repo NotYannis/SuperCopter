@@ -1,7 +1,14 @@
 #include "ship.h"
 
-	Ship::Ship(float y){
-		yPos = y;
+
+
+	Ship::Ship(float y)
+	:	xPos(5),
+		fallingVelocity(0.0f),
+		fallingAcceleration(0.0f),
+		shape('>'),
+		maxFallingV(0.2f) {
+			yPos = y;
 	}
 
 	void Ship::fall(){

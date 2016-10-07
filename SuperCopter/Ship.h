@@ -5,12 +5,12 @@
 
 class Ship{
 	public:
-		const int xPos = 5;
+		const int xPos;
 		float yPos;
-		float fallingVelocity = 0.0f;
-		float fallingAcceleration = 0.0f;
-		const char shape = '>';
-		const float maxFallingV = 0.2f;
+		float fallingVelocity;
+		float fallingAcceleration;
+		const char shape;
+		const float maxFallingV;
 
 		Ship(float y);
 		void fall();
