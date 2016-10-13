@@ -1,7 +1,5 @@
 #include "ship.h"
 
-
-
 	Ship::Ship(float y)
 	:	xPos(5),
 		fallingVelocity(0.0f),
