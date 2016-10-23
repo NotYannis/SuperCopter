@@ -64,7 +64,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Cave.cpp" />
+    <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="Global.cpp" />
     <ClCompile Include="NYTimer.cpp" />
     <ClCompile Include="Source.cpp" />
@@ -73,7 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cave.h" />
-    <ClInclude Include="Global.h" />
+    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Ship.h" />
     <ClInclude Include="WallSetup.h" />
   </ItemGroup>

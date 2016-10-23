@@ -2,7 +2,7 @@
 
 #include <random>
 #include <Windows.h>
-#include "Global.h"
+#include "Global.cpp"
 
 
 WallSetup::WallSetup() {
@@ -19,21 +19,38 @@ WallSetup::WallSetup() {
 	 ptrDownCave2 = &cave2.downCave;
 	 ptrDownCave3 = &cave3.downCave;
 	 ptrStock;
+
+	 standardDeviation = 0.7;
+
+	 limit.Attributes = FOREGROUND_RED;
+	 limit.Char.AsciiChar = '0';
+	 fill.Attributes = FOREGROUND_RED | BACKGROUND_GREEN | BACKGROUND_RED;
+	 fill.Char.AsciiChar = '²';
 }
 
+
+/*
+====================
+buildWalls
+
+Make the walls turn over
+====================
+*/
 void WallSetup::buildWalls() {
 	ptrStock = ptrUpCave;
 	ptrUpCave = ptrUpCave2;
 	ptrUpCave2 = ptrUpCave3;
 	ptrUpCave3 = ptrStock;
-	mBfUp_r(*ptrUpCave3, (*ptrUpCave2)[SCREEN_WIDTH - 1], 0, cave1.upCave.size() - 1, standardDeviation, generator, standardDeviationVariation, true);
+	//Fill the third upper wall
+	mBfUp_r(*ptrUpCave3, (*ptrUpCave2)[SCREEN_WIDTH - 1], 0, cave1.upCave.size() - 1, standardDeviation, generator, true);
 	movingAverage(*ptrUpCave3);
 
 	ptrStock = ptrDownCave;
 	ptrDownCave = ptrDownCave2;
 	ptrDownCave2 = ptrDownCave3;
 	ptrDownCave3 = ptrStock;
-	mBfDown_r(*ptrDownCave3, *ptrUpCave, (*ptrDownCave)[SCREEN_WIDTH - 1], 0, cave1.upCave.size() - 1, 5, standardDeviation, generator, standardDeviationVariation, true);
+	//Fill the third lower wall
+	mBfDown_r(*ptrDownCave3, *ptrUpCave, (*ptrDownCave)[SCREEN_WIDTH - 1], 0, cave1.upCave.size() - 1, 5, standardDeviation, generator, true);
 	movingAverage(*ptrDownCave3);
 
 }
@@ -46,6 +63,7 @@ Initialize the first and last index of vectors passed on parameter with a random
 ====================
 */
 void WallSetup::init() {
+	//Initialize the first and last index of upper walls
 	cave1.upCave[0] = rand_a_b(1, 4);
 	cave1.upCave[SCREEN_WIDTH - 1] = rand_a_b(1, 4);
 	cave2.upCave[0] = cave1.upCave[SCREEN_WIDTH - 1];
@@ -54,6 +72,7 @@ void WallSetup::init() {
 	cave3.upCave[SCREEN_WIDTH - 1] = rand_a_b(1, 4);
 	cave1.upCave[0] = cave3.upCave[SCREEN_WIDTH - 1];
 
+	//Initialize the first and last index of lower walls
 	cave1.downCave[0] = rand_a_b(21, 24);
 	cave1.downCave[SCREEN_WIDTH - 1] = rand_a_b(21, 24);
 	cave2.downCave[0] = cave1.downCave[SCREEN_WIDTH - 1];
@@ -62,18 +81,20 @@ void WallSetup::init() {
 	cave3.downCave[SCREEN_WIDTH - 1] = rand_a_b(21, 24);
 	cave1.downCave[0] = cave3.downCave[SCREEN_WIDTH - 1];
 
-	mBfUp_r(*ptrUpCave, 0, 0, cave1.upCave.size() - 1, standardDeviation, generator, standardDeviationVariation, false);
+	//First construction of upper walls
+	mBfUp_r(*ptrUpCave, 0, 0, cave1.upCave.size() - 1, standardDeviation, generator, false);
 	movingAverage(*ptrUpCave);
-	mBfUp_r(*ptrUpCave2, 0, 0, cave1.upCave.size() - 1, standardDeviation, generator, standardDeviationVariation, false);
+	mBfUp_r(*ptrUpCave2, 0, 0, cave1.upCave.size() - 1, standardDeviation, generator, false);
 	movingAverage(*ptrUpCave2);
-	mBfUp_r(*ptrUpCave3, 0, 0, cave1.upCave.size() - 1, standardDeviation, generator, standardDeviationVariation, false);
+	mBfUp_r(*ptrUpCave3, 0, 0, cave1.upCave.size() - 1, standardDeviation, generator, false);
 	movingAverage(*ptrUpCave3);
 
-	mBfDown_r(*ptrDownCave, *ptrUpCave, 0, 0, cave1.upCave.size() - 1, 5, standardDeviation, generator, standardDeviationVariation, false);
+	//First construction of lower walls
+	mBfDown_r(*ptrDownCave, *ptrUpCave, 0, 0, cave1.upCave.size() - 1, 5, standardDeviation, generator, false);
 	movingAverage(*ptrDownCave);
-	mBfDown_r(*ptrDownCave2, *ptrUpCave2, 0, 0, cave1.upCave.size() - 1, 5, standardDeviation, generator, standardDeviationVariation, false);
+	mBfDown_r(*ptrDownCave2, *ptrUpCave2, 0, 0, cave1.upCave.size() - 1, 5, standardDeviation, generator, false);
 	movingAverage(*ptrDownCave2);
-	mBfDown_r(*ptrDownCave3, *ptrUpCave3, 0, 0, cave1.upCave.size() - 1, 5, standardDeviation, generator, standardDeviationVariation, false);
+	mBfDown_r(*ptrDownCave3, *ptrUpCave3, 0, 0, cave1.upCave.size() - 1, 5, standardDeviation, generator, false);
 	movingAverage(*ptrDownCave3);
 }
 
@@ -90,7 +111,7 @@ The firstCase parameter is used to make a clean junction with the previous vecto
 This function is used for vectors on the upper side of the screen
 ====================
 */
-void WallSetup::mBfUp_r(vector<int>& up, int firstCase, int lowerBound, int upperBound, double stanDev, std::default_random_engine& gen, double stanDevVariation, bool first) {
+void WallSetup::mBfUp_r(vector<int>& up, int firstCase, int lowerBound, int upperBound, double stanDev, std::default_random_engine& gen, bool first) {
 	normal_distribution<double> distrib(0.0, stanDev);
 
 	//Fill the first index with the last index of the previous array and the last one with a random number
@@ -103,6 +124,7 @@ void WallSetup::mBfUp_r(vector<int>& up, int firstCase, int lowerBound, int uppe
 		}
 	}
 
+	//Make the average of upperbound and lower, and add a random gaussian to the middle index
 	if (upperBound - lowerBound > 1) {
 		int mid = (upperBound + lowerBound) / 2;
 
@@ -111,10 +133,8 @@ void WallSetup::mBfUp_r(vector<int>& up, int firstCase, int lowerBound, int uppe
 
 		up[mid] = max(0, min(24, up[mid]));
 
-		stanDev = max(0.02, stanDev * stanDevVariation);
-
-		mBfUp_r(up, 0, lowerBound, mid, stanDev, gen, stanDevVariation, false);
-		mBfUp_r(up, 0, mid, upperBound, stanDev, gen, stanDevVariation, false);
+		mBfUp_r(up, 0, lowerBound, mid, stanDev, gen, false);
+		mBfUp_r(up, 0, mid, upperBound, stanDev, gen, false);
 	}
 }
 
@@ -126,7 +146,7 @@ Same function as the previous one, but for down side vectors
 It needs the upper side vector as parameter to avoid collision between arrays of each side
 ====================
 */
-void WallSetup::mBfDown_r(vector<int>& down, const vector<int>& up, int firstCase, int lowerBound, int upperBound, int val, double stanDev, std::default_random_engine& gen, double stanDevVariation, bool first) {
+void WallSetup::mBfDown_r(vector<int>& down, const vector<int>& up, int firstCase, int lowerBound, int upperBound, int val, double stanDev, std::default_random_engine& gen, bool first) {
 	normal_distribution<double> distrib(0.0, stanDev);
 
 	if (first) {
@@ -152,10 +172,8 @@ void WallSetup::mBfDown_r(vector<int>& down, const vector<int>& up, int firstCas
 			down[mid] = up[mid] + val;
 		}
 
-		stanDev = max(0.02, stanDev * stanDevVariation);
-
-		mBfDown_r(down, up, 0, lowerBound, mid, val, stanDev, gen, stanDevVariation, false);
-		mBfDown_r(down, up, 0, mid, upperBound, val, stanDev, gen, stanDevVariation, false);
+		mBfDown_r(down, up, 0, lowerBound, mid, val, stanDev, gen, false);
+		mBfDown_r(down, up, 0, mid, upperBound, val, stanDev, gen, false);
 	}
 }
 

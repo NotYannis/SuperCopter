@@ -7,13 +7,16 @@ class Ship{
 	public:
 		const int xPos;
 		float yPos;
-		float fallingVelocity;
-		float fallingAcceleration;
 		const char shape;
-		const float maxFallingV;
 
 		Ship(float y);
 		void fall();
+		bool checkCollision(int minY, int maxY);
+
+	private : 
+		float fallingVelocity;
+		float fallingAcceleration;
+		const float maxFallingV;
 };
 
 #endif
