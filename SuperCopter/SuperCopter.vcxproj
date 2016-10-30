@@ -18,7 +18,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -66,7 +66,9 @@
   <ItemGroup>
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="Global.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="NYTimer.cpp" />
+    <ClCompile Include="Score.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Ship.cpp" />
     <ClCompile Include="WallSetup.cpp" />
@@ -74,6 +76,9 @@
   <ItemGroup>
     <ClInclude Include="Cave.h" />
     <ClInclude Include="FrameBuffer.h" />
+    <ClInclude Include="Global.h" />
+    <ClInclude Include="Menu.h" />
+    <ClInclude Include="Score.h" />
     <ClInclude Include="Ship.h" />
     <ClInclude Include="WallSetup.h" />
   </ItemGroup>

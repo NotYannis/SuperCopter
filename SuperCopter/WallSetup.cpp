@@ -2,7 +2,6 @@
 
 #include <random>
 #include <Windows.h>
-#include "Global.cpp"
 
 
 WallSetup::WallSetup() {
@@ -29,6 +28,42 @@ WallSetup::WallSetup() {
 }
 
 
+void WallSetup::drawWalls(CHAR_INFO (&buffer)[SCREEN_HEIGHT][SCREEN_WIDTH], int cpt){
+	int tabIndex = cpt % SCREEN_WIDTH;
+	int x, i;
+
+	for (x = 0; x < SCREEN_WIDTH - 1; ++x){
+		if ((x + tabIndex) >= SCREEN_WIDTH && tabIndex != 0){
+			for (i = (*ptrUpCave2)[(x + tabIndex) % SCREEN_WIDTH]; i >= 0; --i){
+				if (i == (*ptrUpCave2)[(x + tabIndex) % SCREEN_WIDTH])
+					buffer[i][x] = limit;
+				else
+					buffer[i][x] = fill;
+			}
+			for (i = (*ptrDownCave2)[(x + tabIndex) % SCREEN_WIDTH]; i < SCREEN_HEIGHT; ++i){
+				if (i == (*ptrDownCave2)[(x + tabIndex) % SCREEN_WIDTH])
+					buffer[i][x] = limit;
+				else
+					buffer[i][x] = fill;
+			}
+		}
+		else{
+			for (i = (*ptrUpCave)[x + tabIndex]; i >= 0; --i){
+				if (i == (*ptrUpCave)[x + tabIndex])
+					buffer[i][x] = limit;
+				else
+					buffer[i][x] = fill;
+			}
+			for (i = (*ptrDownCave)[x + tabIndex]; i < SCREEN_HEIGHT; ++i){
+				if (i == (*ptrDownCave)[x + tabIndex])
+					buffer[i][x] = limit;
+				else
+					buffer[i][x] = fill;
+			}
+		}
+	}
+}
+
 /*
 ====================
 buildWalls
@@ -52,7 +87,6 @@ void WallSetup::buildWalls() {
 	//Fill the third lower wall
 	mBfDown_r(*ptrDownCave3, *ptrUpCave, (*ptrDownCave)[SCREEN_WIDTH - 1], 0, cave1.upCave.size() - 1, 5, standardDeviation, generator, true);
 	movingAverage(*ptrDownCave3);
-
 }
 
 /*

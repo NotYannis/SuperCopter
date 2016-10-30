@@ -2,7 +2,7 @@
 #define __FRAMEBUFFER__
 
 #include <Windows.h>
-#include "Global.cpp"
+#include "Global.h"
 
 class FrameBuffer {
 	public :

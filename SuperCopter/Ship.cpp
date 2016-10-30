@@ -9,6 +9,11 @@
 			yPos = y;
 	}
 
+	void Ship::drawShip(CHAR_INFO (&buffer)[SCREEN_HEIGHT][SCREEN_WIDTH]){
+		buffer[(int)yPos][xPos].Char.AsciiChar = shape;
+		buffer[(int)yPos][xPos].Attributes = 7;
+	}
+
 	/*
 	====================
 	fall

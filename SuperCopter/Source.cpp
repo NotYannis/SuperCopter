@@ -2,18 +2,31 @@
 #include <stdlib.h>
 #include <iostream>
 #include <Windows.h>
-#include "NYTimer.cpp"
 #include <vector>
 #include <ctime>
 #include <random>
+#include <string>
+#include "NYTimer.cpp"
 #include "Ship.h"
 #include "Cave.h"
-#include <string>
 #include "WallSetup.h"
 #include "FrameBuffer.h"
+#include "Menu.h"
+#include "Score.h"
+
+/*
+TODO :
+Better menus (string place and titles and color and all)
+GetButtonDown functions for menus
+Reset the game to restart it
+Highscore tab (gooooood luck)
+*/
+
 
 using namespace std;
 
+State state;
+bool playing;
 NYTimer timer;
 
 Ship ship(12);
@@ -21,7 +34,8 @@ Ship ship(12);
 FrameBuffer frameBuf;
 CHAR_INFO (&buf)[SCREEN_HEIGHT][SCREEN_WIDTH] = frameBuf.getBuffer();
 WallSetup walls;
-
+Menu menu;
+Score score;
 /*
 ====================
 writeScore
@@ -49,101 +63,110 @@ Fill the buffer with the informations calculated by WallSetup fonctions and ship
 Set char colors
 ====================
 */
-void draw(int cpt, const vector<int>* upLine, const vector<int>* upLine2, const vector<int>* downLine, const vector<int>* downLine2, int maxCaveSpace){
+void draw(int cpt){
+	int tabIndex;
+	
 	ReadConsoleOutput(frameBuf.hOutput, (*buf), frameBuf.dwBufferSize,
 		frameBuf.dwBufferCoord, &frameBuf.rcRegion);
 
-	int x;
-	int i;
+		frameBuf.clear();
 
-	frameBuf.clear();
+	switch (state){
+		case STATE_MENU :
+				menu.drawMenu(buf);
+			break;
+		case STATE_LEVEL :
+			//Draw the cave
+			walls.drawWalls(buf, cpt);
 
-	//Draw the cave
-	int tabIndex = cpt % SCREEN_WIDTH;
-	for ( x = 0; x < SCREEN_WIDTH - 1; ++x ){
-		if ( ( x + tabIndex ) >= SCREEN_WIDTH && tabIndex != 0 ){
-			for ( i = (*upLine2)[( x + tabIndex ) % SCREEN_WIDTH]; i >= 0; --i ){
-				if (i == (*upLine2)[(x + tabIndex) % SCREEN_WIDTH])
-					buf[i][x] = walls.limit ;
-				else
-					buf[i][x] = walls.fill;
-			}
-			for ( i = (*downLine2)[( x + tabIndex ) % SCREEN_WIDTH]; i < SCREEN_HEIGHT; ++i ){
-				if (i == (*downLine2)[(x + tabIndex) % SCREEN_WIDTH])
-					buf[i][x] = walls.limit;
-				else
-					buf[i][x] = walls.fill;
-			}
-		}
-		else{
-			for ( i = (*upLine)[x + tabIndex]; i >= 0; --i ){
-				if (i == (*upLine)[x + tabIndex])
-					buf[i][x] = walls.limit;
-				else
-					buf[i][x] = walls.fill;
-			}
-			for ( i = (*downLine)[ x + tabIndex ]; i < SCREEN_HEIGHT; ++i ){
-				if (i == (*downLine)[x + tabIndex])
-					buf[i][x] = walls.limit;
-				else
-					buf[i][x] = walls.fill;
-			}
-		}
+			//Draw the ship
+			ship.drawShip(buf);
 
-
+			score.drawScore(buf);
+				break;
+		case STATE_SCORE :
+			menu.drawScoreMenu(buf, score.score);
+			break;
 	}
-
-	//Draw the ship
-	buf[(int)ship.yPos][ship.xPos].Char.AsciiChar = ship.shape;
-	buf[(int)ship.yPos][ship.xPos].Attributes = 7;
-
-	writeScore(cpt);
 
 	WriteConsoleOutput(frameBuf.hOutput, (*buf), frameBuf.dwBufferSize, frameBuf.dwBufferCoord, &frameBuf.rcRegion);
 }
 
 int main(int argc, char * argv[]){
-	bool dead = false;
+	playing = true;
+	state = (State)STATE_MENU;
 
-	int cpt = 0;
-	int difficultyLvl = 20;
-	int maxCaveSpace = 15;
+	bool dead;
+
+	int cpt;
+	int difficultyLvl;
 	default_random_engine gen;
+	dead = false;
 
-	srand(time(NULL));
+	cpt = 0;
+	difficultyLvl = 20;
 
 	walls.init();
-
 	timer.start();
-	while (!dead){
-		if (timer.getElapsedSeconds() > 0.01f){
-			//Each time an array is passed, fill a new array
-			if (cpt != 0 && cpt % SCREEN_WIDTH == 0){
-				walls.buildWalls();
-				++difficultyLvl;
-			}
-			//Increase difficulty every 5 new arrays, with a limit
-			if (difficultyLvl < 70){
-				if (difficultyLvl % 5 == 0){
-					walls.standardDeviation += 0.1;
-					++difficultyLvl;
+	srand(time(NULL));
+	float framerate = 0.1f;
+
+	while (playing){
+		if (timer.getElapsedSeconds() > framerate){
+			switch (state){
+			case STATE_MENU:
+				menu.getKey();
+				if (GetAsyncKeyState(VK_SPACE)){
+					state = menu.getState();
 				}
-			}
-			
-			draw(cpt, walls.ptrUpCave, walls.ptrUpCave2, walls.ptrDownCave, walls.ptrDownCave2, maxCaveSpace);
-			
-			ship.fall();
+				draw(cpt);
+				break;
+			case STATE_LEVEL:
+				framerate = 0.01f;
 
-			//Check collision with cave walls
-			if (cpt % 80 >= 75){
-				dead = ship.checkCollision((*walls.ptrUpCave2)[(cpt + ship.xPos) % SCREEN_WIDTH], (*walls.ptrDownCave2)[(cpt + ship.xPos) % SCREEN_WIDTH]);
-			}
-			else{
-				dead = ship.checkCollision((*walls.ptrUpCave)[(cpt + ship.xPos) % SCREEN_WIDTH], (*walls.ptrDownCave)[(cpt + ship.xPos) % SCREEN_WIDTH]);
-			}
+					//Each time an array is passed, fill a new array
+					if (cpt != 0 && cpt % SCREEN_WIDTH == 0){
+						walls.buildWalls();
+						++difficultyLvl;
+					}
+					//Increase difficulty every 5 new arrays, with a limit
+					if (difficultyLvl < 70){
+						if (difficultyLvl % 5 == 0){
+							walls.standardDeviation += 0.1;
+							++difficultyLvl;
+						}
+					}
+					ship.fall();
 
-			++cpt;
-			
+					//Check collision with cave walls
+					if (cpt % 80 >= 75){
+						dead = ship.checkCollision((*walls.ptrUpCave2)[(cpt + ship.xPos) % SCREEN_WIDTH], (*walls.ptrDownCave2)[(cpt + ship.xPos) % SCREEN_WIDTH]);
+					}
+					else{
+						dead = ship.checkCollision((*walls.ptrUpCave)[(cpt + ship.xPos) % SCREEN_WIDTH], (*walls.ptrDownCave)[(cpt + ship.xPos) % SCREEN_WIDTH]);
+					}
+
+					draw(cpt);
+					++cpt;
+					++score.score;
+
+					if (dead){
+						state = (State)STATE_SCORE;
+						menu.selected = 0;
+					}
+				break;
+			case STATE_SCORE:
+				menu.getScoreKey();
+				menu.drawScoreMenu(buf, score.score);
+				if (GetAsyncKeyState(VK_SPACE)){
+					state = menu.getState();
+				}
+				draw(cpt);
+				break;
+			case STATE_QUIT:
+				playing = false;
+				break;
+			}
 			timer.restart();
 		}
 	}

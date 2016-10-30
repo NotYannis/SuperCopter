@@ -1,0 +1,6 @@
+/*enum State{
+	STATE_MENU,
+	STATE_LEVEL,
+	STATE_SCORE,
+	STATE_QUIT
+};*/

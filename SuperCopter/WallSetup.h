@@ -5,6 +5,7 @@
 #include <vector>
 #include <random>
 #include "Cave.h"
+#include "Global.h"
 
 using namespace std;
 
@@ -32,6 +33,7 @@ class WallSetup {
 
 		WallSetup();
 		void buildWalls();
+		void drawWalls(CHAR_INFO (&buffer)[SCREEN_HEIGHT][SCREEN_WIDTH], int cpt);
 		void init();
 	
 	private :
